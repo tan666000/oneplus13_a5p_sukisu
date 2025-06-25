@@ -1,63 +1,28 @@
-name: GKI Kernel Build # 工作流名称，您可以根据需要修改为更通用的名称
-
-permissions:
-  contents: write  # 允许写入仓库内容 (用于推送标签)
-  actions: write   # 允许触发actions
-
+name: oneplus_13
 on:
-  workflow_call: # 允许此工作流被其他工作流调用
+  workflow_dispatch:
     inputs:
-      make_release:
+      KERNEL_SUFFIX:
+        description: '内核名称修改(可改中文和emoji)'
         required: true
-        type: boolean
-        default: true
-      android_version:
+        default: '-酷安FutabaWa'
+      KERNEL_TIME:
+        description: "内核构建日期更改(默认为原厂)"
         required: true
-        type: string
-      kernel_version:
-        required: true
-        type: string
-      sub_level:
-        required: true
-        type: string
-      os_patch_level:
-        required: true
-        type: string
-      kernelsu_variant:
-        required: true
-        type: string
-      kernelsu_branch:
-        required: true
-        type: string
-      revision:
+        default: 'Tue Dec 17 23:36:49 UTC 2024'
+      enable_feature_x:
+        description: "是否启用kpm"
         required: false
-        type: string
-      version:
+        default: false
+        type: boolean
+      enable_feature_y:
+        description: "是否启用lz4kd"
         required: false
-        type: string
-      use_zram:
-        required: true
-        type: boolean
-        default: true
-      use_kpm:
-        required: true
-        type: boolean
-        default: true
-      supp_op:
-        required: true
-        type: boolean
         default: false
-      fast:
-        required: false
         type: boolean
-        default: false
-      onlyAk3:
-        required: true
-        type: boolean
-        default: false
 
 jobs:
-  build-kernel-kernelsu-susfs:
+  build:
     runs-on: ubuntu-latest
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -84,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          sudo apt install -y python3 git curl ccache lld binutils-aarch64-linux-gnu
+          sudo apt install -y python3 git curl ccache lld libelf-dev binutils-aarch64-linux-gnu
 
       - name: Restore ccache
         uses: actions/cache@v3
@@ -103,13 +68,12 @@ jobs:
 
       - name: Checkout Clang Toolchain
         run: |
-          # 使用 --depth=1 进行浅克隆
-          git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r547379.git clang_toolchain
+          git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r547379.git clang_toolchain_new
 
       - name: Set up SukiSU
         run: |
           cd kernel_src
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
+          curl -LSs "https://raw.githubusercontent.com/ShirkNeko/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
           cd ./KernelSU
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10606)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -118,11 +82,11 @@ jobs:
 
       - name: Set up susfs
         run: |
-          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android15-6.6
-          git clone https://github.com/SukiSU-Ultra/SukiSU_patch.git
-
           cd kernel_src
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android15-6.6.patch ./
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android12-5.10 ../susfs4ksu
+          git clone https://github.com/ShirkNeko/SukiSU_patch.git ../SukiSU_patch
+
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android12-5.10.patch ./
           cp ../susfs4ksu/kernel_patches/fs/* ./fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
           #lz4k
@@ -131,16 +95,16 @@ jobs:
           cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./crypto
           cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./lib/
           # Apply patches
-          sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-android15-6.6.patch
-          sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-android15-6.6.patch
+          sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-android12-5.10.patch
+          sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-android12-5.10.patch
 
-          patch -p1 < 50_add_susfs_in_gki-android15-6.6.patch || true
+          patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
           cp ../SukiSU_patch/hooks/syscall_hooks.patch ./
           patch -p1 -F 3 < syscall_hooks.patch
           echo "完成"
 
       - name: Apply lz4kd Patches
-        if: ${{inputs.use_zram }} # 根据 inputs.use_zram 决定是否启用
+        if: ${{inputs.enable_feature_y }}
         run: |
           cd kernel_src
           cp ../SukiSU_patch/other/zram/zram_patch/6.6/lz4kd.patch ./
@@ -183,7 +147,7 @@ jobs:
           git add -A && git commit -a -m "BUILD Kernel"
 
       - name: Add KPM Configuration Settings
-        if: ${{inputs.use_kpm }} # 根据 inputs.use_kpm 决定是否启用
+        if: ${{inputs.enable_feature_x }}
         run: |
           cd kernel_src
           echo "CONFIG_KPM=y" >> ./arch/arm64/configs/gki_defconfig
@@ -196,32 +160,20 @@ jobs:
         run: |
           cd kernel_src
           sed -i 's/${scm_version}//' ./scripts/setlocalversion
-          # 注意：这里是 -4k 替换，确认您的 defconfig 中确实有 -4k
-          # 如果没有，这个 sed 命令可能无效或不适用
           sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./arch/arm64/configs/gki_defconfig
-
-      - name: Add sched_ext
-        if: ${{inputs.supp_op }} # 根据 inputs.supp_op 决定是否启用
-        run: |
-          git clone https://github.com/HanKuCha/sched_ext.git # 克隆到工作区根目录
-          cd kernel_src
-          cp -r ../sched_ext/* ./kernel/sched
 
       - name: Build Kernel
         run: |
           export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
-          # Clang 工具链路径已更新为新的克隆目录
-          export PATH="$GITHUB_WORKSPACE/clang_toolchain/clang-r547379/bin:$PATH"
+          export PATH="$GITHUB_WORKSPACE/clang_toolchain_new/clang-r547379/bin:$PATH"
           export PATH="/usr/lib/ccache:$PATH"
-          sudo apt install libelf-dev
           cd kernel_src
-          # 确保 RUSTC 和 PAHOLE 的路径正确，是相对于 kernel_src 而言的
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig all
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
 
       - name: Apply Linux Patch
         run: |
           cd kernel_src/out/arch/arm64/boot
-          curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+          curl -LO https://github.com/ShirkNeko/SukiSU_KernelPatch_patch/releases/download/0.11-beta/patch_linux
           chmod +x patch_linux
           ./patch_linux
           rm -f Image
@@ -237,14 +189,5 @@ jobs:
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-          name: SuKiSu_${{ env.KSUVER }}_GKI_5.10 # 名称已修改以反映通用性
+          name: SuKiSu_${{ env.KSUVER }}_oneplus_13
           path: ./AnyKernel3/*
-
-      # 仅在 make_release 为 true 时执行发布
-      - name: Release a new version
-        if: ${{ inputs.make_release == true }}
-        uses: softprops/action-gh-release@v1
-        with:
-          files: AnyKernel3/*.zip
-          tag_name: ${{ github.run_number }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}
-          name: ${{ github.run_number }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}
