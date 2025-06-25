@@ -25,22 +25,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # --- 新增步骤：最大化构建空间 ---
+      # --- 最大化构建空间：建议保留此步骤以防空间不足 ---
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          # 保留2GB根分区空间，其余清理。根据实际情况可以调整
           root-reserve-mb: 2048
-          # 保留0.5GB临时空间
           temp-reserve-mb: 512
-          # 移除大部分不需要的预安装软件包，这通常能释放大量空间
           remove-dotnet: 'true'
-          remove-android: 'true' # GitHub Actions 默认安装的 Android SDK 很大，可以移除
+          remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
-          remove-swap: 'true' # 移除交换分区，进一步释放空间
-          remove-tool-cache: 'true' # 清理工具缓存
-          remove-packages: 'true' # 清理 apt 包缓存
+          remove-swap: 'true'
+          remove-tool-cache: 'true'
+          remove-packages: 'true'
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,9 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          # ccache 可以加速重复构建，但其缓存本身也占空间，这里暂时保留
-          sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc
-          # 清理 apt 缓存，因为之前 apt update/upgrade 可能会下载大量包
+          sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc wget tar # 确保安装了 wget 和 tar
           sudo apt autoremove -y && sudo apt clean
           
       - name: Clone Common Kernel (5.10)
@@ -81,10 +76,7 @@ jobs:
         run: |
           cd kernel_workspace/kernel_platform
           echo "应用lz4kd补丁..."
-          # 这里添加实际的lz4kd补丁应用命令，例如 cp 相关文件或 patch
-          # 示例：
-          # cp ../path/to/lz4kd_patch.patch ./
-          # patch -p1 < lz4kd_patch.patch || true
+          # 这里添加实际的lz4kd补丁应用命令
           
       - name: Generate initial config
         run: |
@@ -94,33 +86,34 @@ jobs:
       - name: Configure Kernel Options
         run: |
           cd kernel_workspace/kernel_platform
-          # 使用KERNEL_SUFFIX参数
           sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${{ inputs.KERNEL_SUFFIX }}\"/" .config
           
-          # 使用enable_feature_x参数启用KPM
           if [ "${{ inputs.enable_feature_x }}" = "true" ]; then
             ./scripts/config --enable CONFIG_KPM
             echo "已启用KPM功能"
           fi
           
-          # 启用BBR
           ./scripts/config --enable CONFIG_TCP_CONG_BBR
           ./scripts/config --set-str CONFIG_DEFAULT_TCP_CONG "bbr"
           
-          # 应用配置变更
           make ARCH=arm64 olddefconfig
           
       - name: Build Kernel
         run: |
           cd kernel_workspace/kernel_platform
-          # 使用KERNEL_TIME参数
           export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
           
-          # 获取Android 12专用Clang工具链
-          # 这一步是导致空间不足的元凶，但必须执行
-          git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
-          export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+          # --- 关键修改：改为下载 tar.gz 包并解压 ---
+          echo "正在下载 Clang 工具链..."
+          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O clang-r547379.tar.gz
+          echo "正在解压 Clang 工具链..."
+          tar -xf clang-r547379.tar.gz
+          # 根据解压后的实际目录结构设置 CLANG_PATH
+          # 假设解压后会在当前目录生成一个名为 'clang-r547379' 的文件夹
+          export CLANG_PATH=$(pwd)/clang-r547379/bin 
           export PATH=${CLANG_PATH}:${PATH}
+          echo "Clang 工具链路径已设置为: ${CLANG_PATH}"
+          # --- 修改结束 ---
           
           # 开始构建
           make -j$(nproc) ARCH=arm64 CC=clang \
@@ -131,11 +124,9 @@ jobs:
       - name: Package Kernel
         run: |
           cd kernel_workspace/kernel_platform
-          # 创建AnyKernel3包
           git clone https://github.com/Kernel-SU/AnyKernel3.git
           cp arch/arm64/boot/Image.gz AnyKernel3/
           
-          # 添加构建信息文件
           echo "构建参数:" > AnyKernel3/build-info.txt
           echo "KERNEL_SUFFIX: ${{ inputs.KERNEL_SUFFIX }}" >> AnyKernel3/build-info.txt
           echo "KERNEL_TIME: ${{ inputs.KERNEL_TIME }}" >> AnyKernel3/build-info.txt
