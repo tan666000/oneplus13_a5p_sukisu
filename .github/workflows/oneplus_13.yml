@@ -53,8 +53,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          # 在这里添加了 lld 包的安装
-          sudo apt install -y python3 git curl ccache lld
+          # 在这里添加了 binutils-aarch64-linux-gnu 包的安装
+          sudo apt install -y python3 git curl ccache lld binutils-aarch64-linux-gnu
 
       - name: Restore ccache
         uses: actions/cache@v3
