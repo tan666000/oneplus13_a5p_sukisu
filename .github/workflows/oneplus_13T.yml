@@ -25,13 +25,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # --- 新增步骤：最大化构建空间 ---
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          # 保留2GB根分区空间，其余清理。根据实际情况可以调整
+          root-reserve-mb: 2048
+          # 保留0.5GB临时空间
+          temp-reserve-mb: 512
+          # 移除大部分不需要的预安装软件包，这通常能释放大量空间
+          remove-dotnet: 'true'
+          remove-android: 'true' # GitHub Actions 默认安装的 Android SDK 很大，可以移除
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-swap: 'true' # 移除交换分区，进一步释放空间
+          remove-tool-cache: 'true' # 清理工具缓存
+          remove-packages: 'true' # 清理 apt 包缓存
+
       - name: Checkout repository
         uses: actions/checkout@v4
         
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
+          # ccache 可以加速重复构建，但其缓存本身也占空间，这里暂时保留
           sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc
+          # 清理 apt 缓存，因为之前 apt update/upgrade 可能会下载大量包
+          sudo apt autoremove -y && sudo apt clean
           
       - name: Clone Common Kernel (5.10)
         run: |
@@ -61,9 +81,11 @@ jobs:
         run: |
           cd kernel_workspace/kernel_platform
           echo "应用lz4kd补丁..."
-          # 这里添加实际的lz4kd补丁应用命令
+          # 这里添加实际的lz4kd补丁应用命令，例如 cp 相关文件或 patch
+          # 示例：
+          # cp ../path/to/lz4kd_patch.patch ./
+          # patch -p1 < lz4kd_patch.patch || true
           
-      # 关键修复：首先生成默认配置
       - name: Generate initial config
         run: |
           cd kernel_workspace/kernel_platform
@@ -95,6 +117,7 @@ jobs:
           export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
           
           # 获取Android 12专用Clang工具链
+          # 这一步是导致空间不足的元凶，但必须执行
           git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
           export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
           export PATH=${CLANG_PATH}:${PATH}
