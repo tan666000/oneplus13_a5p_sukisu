@@ -113,30 +113,39 @@ jobs:
           # 使用KERNEL_TIME参数
           export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
           
-          # --- 关键修改：直接下载 tar.gz 包并解压 ---
-          echo "正在下载 Clang 工具链..."
-          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O clang-r547379.tar.gz
-          echo "正在解压 Clang 工具链..."
-          tar -xf clang-r547379.tar.gz
+          # --- 关键修改：创建指定目录并解压 Clang 工具链到其中 ---
+          export CLANG_DIR=$(pwd)/clang_toolchain_r547379 # 定义一个明确的 Clang 存放目录
+          echo "正在创建 Clang 工具链目录: ${CLANG_DIR}"
+          mkdir -p ${CLANG_DIR} # 创建目录，-p 确保父目录也一并创建
           
-          # --- 调试代码：用于确认解压后的实际目录结构 ---
-          # 如果编译仍然报错找不到 ld.lld，请查看这些命令的输出
-          echo "======== 调试信息: Clang 解压目录内容 ========"
-          ls -R $(pwd) # 递归列出当前目录所有文件和子目录
-          echo "======== 调试信息: 检查预期的 CLANG_PATH 内容 ========"
-          ls -F $(pwd)/clang-r547379/bin # 列出预期 bin 目录的内容
-          echo "======== 调试信息: 尝试在工作目录下查找 ld.lld ========"
-          find $(pwd) -name "ld.lld" # 在当前工作目录下查找 ld.lld
+          echo "正在下载 Clang 工具链..."
+          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O ${CLANG_DIR}/clang-r547379.tar.gz
+          echo "正在解压 Clang 工具链到 ${CLANG_DIR}..."
+          tar -xf ${CLANG_DIR}/clang-r547379.tar.gz -C ${CLANG_DIR} # 使用 -C 参数指定解压目录
+
+          # 删除下载的压缩包以节省空间
+          rm ${CLANG_DIR}/clang-r547379.tar.gz
+          
+          # --- 设置 Clang 路径 ---
+          # 假设 tarball 解压后会在 ${CLANG_DIR} 内部创建一个名为 'clang-r547379' 的目录，
+          # 并且 bin 目录在其内部。这是谷歌 Clang tarball 常见的解压结构。
+          export CLANG_PATH="${CLANG_DIR}/clang-r547379/bin"
+          
+          # 如果上述路径不正确，您可能需要根据实际情况调整 CLANG_PATH。
+          # 例如，如果解压后 bin 目录直接位于 ${CLANG_DIR} 内部，则：
+          # export CLANG_PATH="${CLANG_DIR}/bin"
+          
+          export PATH=${CLANG_PATH}:${PATH}
+          echo "Clang 工具链路径已设置为: ${CLANG_PATH}"
+
+          # --- 调试信息：用于确认解压后的实际目录结构 ---
+          # 运行工作流后，如果编译仍然报错找不到 ld.lld，请查看这些命令的输出
+          echo "======== 调试信息: Clang 目录 ${CLANG_DIR} 内容 ========"
+          ls -R ${CLANG_DIR} # 递归列出新创建的 Clang 目录所有文件和子目录
           echo "======== 调试信息: 检查 PATH 环境变量 ========"
           echo $PATH
           echo "======== 调试信息结束 ========"
-          # --- 调试代码结束 ---
-
-          # 根据您的日志分析，假设解压后会在当前目录生成一个名为 'clang-r547379' 的文件夹
-          # 并且 ld.lld 位于其下的 bin 目录。如果后续仍报错，需根据上方调试结果调整此路径。
-          export CLANG_PATH=$(pwd)/clang-r547379/bin 
-          export PATH=${CLANG_PATH}:${PATH}
-          echo "Clang 工具链路径已设置为: ${CLANG_PATH}"
+          # --- 调试信息结束 ---
           
           # 开始构建
           make -j$(nproc) ARCH=arm64 CC=clang \
@@ -147,7 +156,6 @@ jobs:
       - name: Package Kernel
         run: |
           cd kernel_workspace/kernel_platform
-          # 创建AnyKernel3包
           git clone https://github.com/Kernel-SU/AnyKernel3.git
           cp arch/arm64/boot/Image.gz AnyKernel3/
           
