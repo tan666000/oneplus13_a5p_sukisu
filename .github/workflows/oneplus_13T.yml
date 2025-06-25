@@ -98,6 +98,2012 @@ jobs:
           
           make ARCH=arm64 olddefconfig
           
+      Gemini
+
+2.5 Flash
+
+和 Gemini 的對話
+Run cd kernel_workspace/kernel_platform
+
+2
+
+cd kernel_workspace/kernel_platform
+
+3
+
+# 使用KERNEL_TIME参数
+
+4
+
+export KBUILD_BUILD_TIMESTAMP="Tue Dec 17 23:36:49 UTC 2024"
+
+5
+
+
+6
+
+# 获取Android 12专用Clang工具链
+
+7
+
+git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+
+8
+
+export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+
+9
+
+export PATH=${CLANG_PATH}:${PATH}
+
+10
+
+
+11
+
+# 开始构建
+
+12
+
+make -j$(nproc) ARCH=arm64 CC=clang \
+
+13
+
+CROSS_COMPILE=aarch64-linux-gnu- \
+
+14
+
+LD=ld.lld \
+
+15
+
+NM=llvm-nm
+
+16
+
+
+17
+
+shell: /usr/bin/bash -e {0}
+
+18
+
+Cloning into 'clang-5.10'...
+
+19
+
+fatal: write error: No space left on device
+
+20
+
+fatal: fetch-pack: invalid index-pack output
+
+21
+
+Error: Process completed with exit code 128.
+
+
+
+
+
+Package Kernel
+
+0s
+
+
+
+
+
+Upload Artifact
+
+0s
+
+
+
+
+
+Post Checkout repository
+
+0s
+
+
+
+
+
+Complete job
+
+0s
+
+
+
+
+You've shared a script snippet for compiling a Linux kernel, followed by an error message. Let's break down what's happening.
+
+What Your Script Is Doing
+This script is designed to build a Linux kernel for Android 12. Here's a quick rundown of each step:
+
+It navigates to the kernel_workspace/kernel_platform directory, which is likely where your kernel source code is.
+
+It sets the build timestamp for the kernel.
+
+It then proceeds to download the Android 12-specific Clang toolchain from Google's source repositories. Clang is a compiler that turns your kernel source code into an executable kernel. The downloaded toolchain is placed in a directory called clang-5.10.
+
+After downloading, it sets up your system's PATH environment variable so that the build process can easily find the Clang compiler and related tools.
+
+Finally, it kicks off the kernel compilation using make. It specifies an arm64 architecture (common for Android devices), uses Clang as the compiler, and sets up cross-compilation tools.
+
+The Error: fatal: write error: No space left on device
+The crucial part here is the error message:
+
+Cloning into 'clang-5.10'...
+fatal: write error: No space left on device
+fatal: fetch-pack: invalid index-pack output
+Error: Process completed with exit code 128.
+This clearly indicates that the git clone command (which is trying to download the Clang toolchain) failed because your system ran out of disk space.
+
+fatal: write error: No space left on device: This is the primary error. It means the system couldn't write the downloaded files to your disk because there's no free space remaining.
+
+fatal: fetch-pack: invalid index-pack output: This is a secondary error, a consequence of the first. Since the download couldn't be fully written, the downloaded data became corrupted or incomplete, leading to issues with Git's internal indexing.
+
+Error: Process completed with exit code 128.: Exit code 128 for Git usually signifies a fatal error, which aligns with the "no space left" issue.
+
+The subsequent "Package Kernel," "Upload Artifact," and "Post Checkout repository" steps all show "0s" because the preceding critical step (downloading the toolchain) failed, preventing any further progress in the build process.
+
+How to Fix It
+To resolve this, you need to free up disk space on the device where you're running this build. Here's what you can do:
+
+Check Disk Usage:
+
+Open your terminal and run df -h. This command shows the amount of free and used disk space on your mounted file systems. Look for the partition where kernel_workspace/kernel_platform is located (often / or /home).
+
+Identify and Delete Unnecessary Files:
+
+Temporary Files: Check your /tmp directory.
+
+Log Files: Look in /var/log (but be cautious not to delete critical system logs if you're unsure).
+
+Old Builds/Downloads: If you have previous kernel builds, old source code, or other large downloaded files that are no longer needed, delete them.
+
+Package Caches: For Debian/Ubuntu systems, sudo apt clean can clear downloaded package archives. For Red Hat/Fedora, sudo dnf clean all or sudo yum clean all.
+
+Docker Images/Volumes: If you use Docker, old images or volumes can consume a lot of space. Use docker system prune (with caution, as it removes a lot) or docker rmi <image_id> to remove specific images.
+
+Large User Files: Check your home directory for any large personal files, videos, or archives that you can move to external storage or delete.
+
+After freeing up a significant amount of space, try running your kernel build script again.
+
+说汉语
+
+
+
+好的，我会用汉语为您提供信息和帮助。
+
+您有什么问题或者需要我做些什么呢？
+
+Run cd kernel_workspace/kernel_platform
+
+2
+
+cd kernel_workspace/kernel_platform
+
+3
+
+# 使用KERNEL_TIME参数
+
+4
+
+export KBUILD_BUILD_TIMESTAMP="Tue Dec 17 23:36:49 UTC 2024"
+
+5
+
+
+6
+
+# 获取Android 12专用Clang工具链
+
+7
+
+git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+
+8
+
+export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+
+9
+
+export PATH=${CLANG_PATH}:${PATH}
+
+10
+
+
+11
+
+# 开始构建
+
+12
+
+make -j$(nproc) ARCH=arm64 CC=clang \
+
+13
+
+CROSS_COMPILE=aarch64-linux-gnu- \
+
+14
+
+LD=ld.lld \
+
+15
+
+NM=llvm-nm
+
+16
+
+
+17
+
+shell: /usr/bin/bash -e {0}
+
+18
+
+Cloning into 'clang-5.10'...
+
+19
+
+fatal: write error: No space left on device
+
+20
+
+fatal: fetch-pack: invalid index-pack output
+
+21
+
+Error: Process completed with exit code 128.
+
+
+
+
+
+Package Kernel
+
+0s
+
+
+
+
+
+Upload Artifact
+
+0s
+
+
+
+
+
+Post Checkout repository
+
+0s
+
+
+
+
+
+Complete job
+
+0s
+
+
+
+
+您提供的这段信息显示了一个用于编译 Linux 内核的脚本，以及在执行过程中遇到的错误。
+
+脚本内容概述
+这段脚本的目标是编译一个针对 Android 12 的 ARM64 架构 Linux 内核。它主要做了以下几件事：
+
+进入工作目录：cd kernel_workspace/kernel_platform 命令将当前目录切换到内核源代码所在的文件夹。
+
+设置构建时间戳：export KBUILD_BUILD_TIMESTAMP="..." 指定了编译输出的内核版本时间。
+
+获取 Clang 工具链：git clone ... clang-5.10 命令会从 Google 的源代码服务器下载一个专门用于 Android 12 的 Clang 编译器工具链。Clang 是将源代码编译成可执行程序的关键工具。下载完成后，脚本会设置相关的环境变量（CLANG_PATH 和 PATH），以便后续编译过程能够找到这个工具链。
+
+开始构建内核：make -j$(nproc) ... 命令启动内核编译。它会利用您系统所有可用的 CPU 核心 (-j$(nproc)) 来加速编译，并指定目标架构为 arm64，使用 clang 作为编译器，以及其他交叉编译相关的参数。
+
+错误信息分析：No space left on device
+在脚本执行到 git clone 下载 Clang 工具链时，出现了以下错误：
+
+Cloning into 'clang-5.10'...
+fatal: write error: No space left on device
+fatal: fetch-pack: invalid index-pack output
+Error: Process completed with exit code 128.
+这条错误信息的核心是 fatal: write error: No space left on device，它明确地告诉您：
+
+设备上没有剩余空间了。 这意味着您的硬盘或分区已经满了，Git 无法将下载的 Clang 工具链文件写入磁盘。
+
+fatal: fetch-pack: invalid index-pack output 是因为磁盘空间不足导致下载中断，Git 无法正确处理不完整的数据包。
+
+Error: Process completed with exit code 128. 表示 Git 命令以错误代码 128 退出，这通常意味着发生了致命错误。
+
+紧随其后的 "Package Kernel"、"Upload Artifact" 等步骤都显示 "0s"，是因为前面的下载步骤失败了，导致整个编译流程无法继续进行。
+
+如何解决这个问题？
+解决这个问题的关键是释放更多的磁盘空间。您可以尝试以下方法：
+
+检查磁盘使用情况：
+
+在终端中运行 df -h 命令，查看各个挂载点的磁盘使用情况。重点关注存放 kernel_workspace/kernel_platform 目录的分区（通常是根分区 / 或您的家目录 /home 所在的分区）。
+
+清理不必要的文件：
+
+删除旧的或不用的文件：检查您的下载文件夹、文档、视频、图片等，删除不再需要的大文件。
+
+清理缓存文件：
+
+Linux 系统会缓存软件包。如果您使用的是 Debian/Ubuntu 系统，可以运行 sudo apt clean。如果是 Red Hat/CentOS/Fedora，可以运行 sudo dnf clean all 或 sudo yum clean all。
+
+检查 /var/log 目录下的旧日志文件（但请谨慎操作，避免删除正在使用的日志）。
+
+清理临时文件，例如 /tmp 目录下的内容。
+
+清理旧的编译产物：如果您之前有编译失败的尝试，可能会留下一些中间文件，可以尝试在 kernel_workspace/kernel_platform 目录下运行 make clean（如果存在 Makefile 中定义了 clean 目标的话）。
+
+Docker 或虚拟机文件：如果您使用 Docker 或虚拟机，检查是否有不再需要的镜像、容器或虚拟机磁盘文件，它们可能占用大量空间。
+
+释放足够的磁盘空间后，请再次尝试运行您的内核编译脚本。
+
+name: oneplus_ace5_pro
+
+on:
+
+  workflow_dispatch:
+
+    inputs:
+
+      KERNEL_SUFFIX:
+
+        description: '内核名称修改(可改中文和emoji)'
+
+        required: true
+
+        default: '-酷安FutabaWa'
+
+      KERNEL_TIME:
+
+       description: "内核构建日期更改(默认为原厂)"
+
+       required: true
+
+       default: 'Wed Dec 4 02:11:46 UTC 2024'
+
+      enable_feature_x:
+
+       description: "是否启用kpm"
+
+       required: false
+
+       default: false
+
+       type: boolean
+
+      enable_feature_y:
+
+       description: "是否启用lz4kd"
+
+       required: false
+
+       default: false
+
+       type: boolean
+
+      enable_feature_z:
+
+       description: "是否添加风驰驱动"
+
+       required: false
+
+       default: false
+
+       type: boolean
+
+      
+
+       
+
+
+
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+
+      CCACHE_NOHASHDIR: "true"
+
+      CCACHE_HARDLINK: "true"
+
+      CCACHE_DIR: /home/runner/.ccache  
+
+      CCACHE_MAXSIZE: 8G
+
+    steps:
+
+      - name: Maximize build space
+
+        uses: easimon/maximize-build-space@master
+
+        with:
+
+          root-reserve-mb: 8192
+
+          temp-reserve-mb: 2048
+
+          remove-dotnet: 'true'
+
+          remove-android: 'true'
+
+          remove-haskell: 'true'
+
+          remove-codeql: 'true'
+
+          
+
+      - name: Configure Git
+
+        run: |
+
+         git config --global user.name "Futaba"
+
+         git config --global user.email "3199167602@qq.com"
+
+
+
+      - name: Install dependencies
+
+        run: |
+
+          sudo apt update && sudo apt upgrade -y
+
+          sudo apt install -y python3 git curl
+
+          sudo apt install -y python3 git curl ccache
+
+
+
+      - name: Restore ccache
+
+        uses: actions/cache@v3
+
+        with:
+
+          path: /home/runner/.ccache
+
+          key: ccache-${{ runner.os }}-${{ github.ref }}
+
+          restore-keys: |
+
+            ccache-${{ runner.os }}-
+
+
+
+      - name: Install repo tool
+
+        run: |
+
+         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
+
+         chmod a+x ~/repo
+
+         sudo mv ~/repo /usr/local/bin/repo
+
+
+
+      - name: Initialize repo and sync
+
+        run: |
+
+         mkdir kernel_workspace && cd kernel_workspace
+
+         repo init -u https://github.com/HanKuCha/kernel_manifest.git -b refs/heads/oneplus/sm8750 -m JiuGeFaCai_oneplus_ace5_pro_v.xml --depth=1
+
+         repo --trace sync -c -j$(nproc --all) --no-tags
+
+         rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+
+         rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+
+         
+
+      - name: Set up SukiSU
+
+        run: |
+
+         cd kernel_workspace/kernel_platform
+
+         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-1.5.8/kernel/setup.sh" | bash -s susfs-1.5.8
+
+         cd ./KernelSU
+
+         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10606)
+
+         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+
+         export KSU_VERSION=$KSU_VERSION
+
+         sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
+
+      
+
+        
+
+      - name: Set up susfs
+
+        run: |
+
+           cd kernel_workspace
+
+           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android15-6.6
+
+           git clone https://github.com/SukiSU-Ultra/SukiSU_patch.git
+
+
+
+           cd kernel_platform        
+
+           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android15-6.6.patch ./common/
+
+           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+
+           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+
+           #lz4k
+
+           cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
+
+           cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
+
+           cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
+
+           cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
+
+           # Apply patches
+
+           cd ./common
+
+
+
+           sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-android15-6.6.patch
+
+           sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-android15-6.6.patch
+
+
+
+           patch -p1 < 50_add_susfs_in_gki-android15-6.6.patch || true
+
+           cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
+
+           patch -p1 -F 3 < syscall_hooks.patch
+
+           echo "完成"
+
+      
+
+      - name: Apply HMBird GKI patch
+
+        run: |
+
+         cd kernel_workspace/kernel_platform/common/drivers
+
+         cat << 'EOF' > hmbird_patch.c
+
+         #include <linux/init.h>
+
+         #include <linux/module.h>
+
+         #include <linux/of.h>
+
+         #include <linux/slab.h>
+
+         #include <linux/string.h>
+
+
+
+         static int __init hmbird_patch_init(void)
+
+         {
+
+             struct device_node *ver_np;
+
+             const char *type;
+
+             int ret;
+
+
+
+             ver_np = of_find_node_by_path("/soc/oplus,hmbird/version_type");
+
+             if (!ver_np) {
+
+                  pr_info("hmbird_patch: version_type node not found\n");
+
+                  return 0;
+
+             }
+
+
+
+             ret = of_property_read_string(ver_np, "type", &type);
+
+             if (ret) {
+
+                  pr_info("hmbird_patch: type property not found\n");
+
+                  of_node_put(ver_np);
+
+                  return 0;
+
+             }
+
+
+
+             if (strcmp(type, "HMBIRD_OGKI")) {
+
+                  of_node_put(ver_np);
+
+                  return 0;
+
+             }
+
+
+
+             struct property *prop = of_find_property(ver_np, "type", NULL);
+
+             if (prop) {
+
+                  struct property *new_prop = kmalloc(sizeof(*prop), GFP_KERNEL);
+
+                  if (!new_prop) {
+
+                       pr_info("hmbird_patch: kmalloc for new_prop failed\n");
+
+                       of_node_put(ver_np);
+
+                       return 0;
+
+             }
+
+             memcpy(new_prop, prop, sizeof(*prop));
+
+             new_prop->value = kmalloc(strlen("HMBIRD_GKI") + 1, GFP_KERNEL);
+
+             if (!new_prop->value) {
+
+                  pr_info("hmbird_patch: kmalloc for new_prop->value failed\n");
+
+                  kfree(new_prop);
+
+                  of_node_put(ver_np);
+
+                  return 0;
+
+            }
+
+            strcpy(new_prop->value, "HMBIRD_GKI");
+
+            new_prop->length = strlen("HMBIRD_GKI") + 1;
+
+
+
+            if (of_remove_property(ver_np, prop) != 0) {
+
+                 pr_info("hmbird_patch: of_remove_property failed\n");
+
+                 return 0;
+
+            }
+
+            if (of_add_property(ver_np, new_prop) !=0) {
+
+                 pr_info("hmbird_patch: of_add_property failed\n");
+
+                 return 0;
+
+            }
+
+            pr_info("hmbird_patch: success from HMBIRD_OGKI to HMBIRD_GKI\n");
+
+         }
+
+         else {
+
+             pr_info("hmbird_patch: type property structure not found\n");
+
+         }
+
+         of_node_put(ver_np);
+
+         return 0;
+
+         }
+
+         early_initcall(hmbird_patch_init);
+
+         MODULE_LICENSE("GPL");
+
+         MODULE_AUTHOR("reigadegr");
+
+         MODULE_DESCRIPTION("Forcefully convert HMBIRD_OGKI to HMBIRD_GKI.");
+
+         EOF
+
+         if ! grep -q "hmbird_patch.o" Makefile; then
+
+         echo "obj-y += hmbird_patch.o" >> Makefile
+
+         fi
+
+         cd ../../../
+
+         git add -A
+
+         git commit -m "Add HMBird GKI patch" || true
+
+
+
+ 
+
+      - name: Apply lz4kd Patches
+
+        if: ${{inputs.enable_feature_y }}
+
+        run: |
+
+          cd kernel_workspace/kernel_platform/common
+
+            cp ../../SukiSU_patch/other/zram/zram_patch/6.6/lz4kd.patch ./
+
+            patch -p1 -F 3 < lz4kd.patch || true
+
+           
+
+      - name: Add SUSFS Configuration Settings
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+
+
+          # Add VFS configuration settings
+
+          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          
+
+          # Add SUSFS configuration settings
+
+          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          
+
+          echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_CRYPTO_LZ4K=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_CRYPTO_842=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_LOCALVERSION_AUTO=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+
+
+          # Add BBR
+
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_TCP_CONG_BIC=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_TCP_CONG_CUBIC=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_TCP_CONG_WESTWOOD=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_TCP_CONG_HTCP=n" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "CONFIG_DEFAULT_TCP_CONG=bbr" >> ./common/arch/arm64/configs/gki_defconfig
+
+          
+
+          #Remove check_defconfig
+
+          sudo sed -i 's/check_defconfig//' ./common/build.config.gki
+
+          cd common
+
+          git add -A && git commit -a -m "BUILD Kernel"
+
+      
+
+      - name: Add KPM Configuration Settings
+
+        if: ${{inputs.enable_feature_x }}
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+         
+
+          #Remove check_defconfig
+
+          sudo sed -i 's/check_defconfig//' ./common/build.config.gki
+
+          cd common
+
+          git add -A && git commit -a -m "BUILD Kernel"
+
+          
+
+      - name: Add make name
+
+        run: |
+
+         cd kernel_workspace/kernel_platform
+
+         sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
+
+         sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./common/arch/arm64/configs/gki_defconfig
+
+        
+
+      - name: Add sched_ext
+
+        if: ${{inputs.enable_feature_z }}
+
+        run: |
+
+         cd kernel_workspace/kernel_platform/
+
+         git clone https://github.com/HanKuCha/sched_ext.git
+
+         cp -r ./sched_ext/* ./common/kernel/sched
+
+         rm -rf ./sched_ext/.git
+
+         cd common/kernel/sched  
+
+
+
+      - name: Build Kernel
+
+        run: |
+
+          export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
+
+          export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+
+          export PATH="/usr/lib/ccache:$PATH"
+
+          sudo apt install libelf-dev
+
+          cd kernel_workspace/kernel_platform/common
+
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld  HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig all
+
+          
+
+      - name: Apply Linux Patch
+
+        run: |
+
+         cd kernel_workspace/kernel_platform/common/out/arch/arm64/boot
+
+         curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+
+         chmod +x patch_linux
+
+         ./patch_linux
+
+         rm -f Image
+
+         mv oImage Image
+
+         
+
+      - name: Make AnyKernel3
+
+        run: |
+
+         git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1      
+
+         rm -rf ./AnyKernel3/.git
+
+         rm -rf ./AnyKernel3/push.sh
+
+         cp kernel_workspace/kernel_platform/common/out/arch/arm64/boot/Image ./AnyKernel3/
+
+
+
+      - name: Upload AnyKernel3
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+         name: SuKiSu_${{ env.KSUVER }}_oneplus_ace5_pro
+
+         path: ./AnyKernel3/*这里面用的啥clang编译的
+
+
+
+
+您好！您提供的 YAML 文件描述了一个 GitHub Actions 工作流，用于构建 OnePlus Ace 5 Pro 的自定义内核。
+
+您想知道 Upload AnyKernel3 步骤中使用了哪个 Clang 编译器。仔细分析 YAML 文件，我发现 Clang 工具链的路径在 Build Kernel 步骤中被设置：
+
+YAML
+
+- name: Build Kernel
+  run: |
+    export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
+    export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+    export PATH="/usr/lib/ccache:$PATH"
+    sudo apt install libelf-dev
+    cd kernel_workspace/kernel_platform/common
+    make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld  HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig all
+从 export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH" 这一行可以看出，这个工作流使用了路径为 /kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin 的 Clang 编译器。
+
+也就是说，用于编译内核的 Clang 版本是 clang-r510928。
+
+Upload AnyKernel3 步骤只是将编译好的内核上传，它本身并不涉及编译，所以它使用的是之前 Build Kernel 步骤中设置好的 Clang 编译器。
+
+里面有没有下载编译器
+
+
+
+Based on the YAML configuration you provided, yes, the workflow does download a compiler.
+
+Specifically, it downloads the Clang compiler in the following step:
+
+下载编译器部分
+在您的 GitHub Actions 工作流中，以下步骤负责下载 Clang 编译器：
+
+YAML
+
+- name: Initialize repo and sync
+  run: |
+    mkdir kernel_workspace && cd kernel_workspace
+    repo init -u https://github.com/HanKuCha/kernel_manifest.git -b refs/heads/oneplus/sm8750 -m JiuGeFaCai_oneplus_ace5_pro_v.xml --depth=1
+    repo --trace sync -c -j$(nproc --all) --no-tags
+    rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+    rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+虽然这段代码没有直接显示 git clone Clang，但 repo init 和 repo sync 命令的作用就是初始化并同步 Android 源代码仓库，这个仓库包含了预构建的 Clang 工具链。
+
+更早您提供的脚本片段中，有直接的 git clone 命令来获取 Clang：
+
+Bash
+
+git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+尽管在您最新的完整 YAML 中没有直接看到这行 git clone，但是 repo sync 会负责拉取整个 Android 平台所需的所有组件，这其中就包括了编译所需的 Clang 工具链。
+
+在 Build Kernel 步骤中，路径被明确设置为：
+
+YAML
+
+export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+这表明它使用的是位于 kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin 的 Clang 编译器。这个路径下的工具链正是通过 repo sync 过程同步下来的。
+
+name: Android 12 GKI Kernel Builder
+
+on:
+
+  workflow_dispatch:
+
+    inputs:
+
+      KERNEL_SUFFIX:
+
+        description: '内核名称修改(可改中文和emoji)'
+
+        required: true
+
+        default: '-酷安FutabaWa'
+
+      KERNEL_TIME:
+
+        description: "内核构建日期更改(默认为原厂)"
+
+        required: true
+
+        default: 'Tue Dec 17 23:36:49 UTC 2024'
+
+      enable_feature_x:
+
+        description: "是否启用kpm"
+
+        required: false
+
+        default: false
+
+        type: boolean
+
+      enable_feature_y:
+
+        description: "是否启用lz4kd"
+
+        required: false
+
+        default: false
+
+        type: boolean
+
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+        
+
+      - name: Install dependencies
+
+        run: |
+
+          sudo apt update && sudo apt upgrade -y
+
+          sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc
+
+          
+
+      - name: Clone Common Kernel (5.10)
+
+        run: |
+
+          mkdir kernel_workspace
+
+          cd kernel_workspace
+
+          git clone https://github.com/tan666000/android_gki_kernel_5.10_common.git -b android12-5.10-2025-06 kernel_platform
+
+          cd kernel_platform
+
+          git checkout android12-5.10-2025-06
+
+          
+
+      - name: Set up SukiSU for 5.10
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+
+          
+
+      - name: Set up susfs for 5.10
+
+        run: |
+
+          cd kernel_workspace
+
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android12-5.10
+
+          cd kernel_platform
+
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android12-5.10.patch ./
+
+          cp ../susfs4ksu/kernel_patches/fs/* ./fs/
+
+          cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
+
+          patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
+
+          
+
+      - name: Apply lz4kd Patches (条件执行)
+
+        if: ${{ inputs.enable_feature_y }}
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          echo "应用lz4kd补丁..."
+
+          # 这里添加实际的lz4kd补丁应用命令
+
+          
+
+      # 关键修复：首先生成默认配置
+
+      - name: Generate initial config
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          make ARCH=arm64 gki_defconfig
+
+          
+
+      - name: Configure Kernel Options
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          # 使用KERNEL_SUFFIX参数
+
+          sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${{ inputs.KERNEL_SUFFIX }}\"/" .config
+
+          
+
+          # 使用enable_feature_x参数启用KPM
+
+          if [ "${{ inputs.enable_feature_x }}" = "true" ]; then
+
+            ./scripts/config --enable CONFIG_KPM
+
+            echo "已启用KPM功能"
+
+          fi
+
+          
+
+          # 启用BBR
+
+          ./scripts/config --enable CONFIG_TCP_CONG_BBR
+
+          ./scripts/config --set-str CONFIG_DEFAULT_TCP_CONG "bbr"
+
+          
+
+          # 应用配置变更
+
+          make ARCH=arm64 olddefconfig
+
+          
+
+      - name: Build Kernel
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          # 使用KERNEL_TIME参数
+
+          export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
+
+          
+
+          # 获取Android 12专用Clang工具链
+
+          git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+
+          export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+
+          export PATH=${CLANG_PATH}:${PATH}
+
+          
+
+          # 开始构建
+
+          make -j$(nproc) ARCH=arm64 CC=clang \
+
+            CROSS_COMPILE=aarch64-linux-gnu- \
+
+            LD=ld.lld \
+
+            NM=llvm-nm
+
+            
+
+      - name: Package Kernel
+
+        run: |
+
+          cd kernel_workspace/kernel_platform
+
+          # 创建AnyKernel3包
+
+          git clone https://github.com/Kernel-SU/AnyKernel3.git
+
+          cp arch/arm64/boot/Image.gz AnyKernel3/
+
+          
+
+          # 添加构建信息文件
+
+          echo "构建参数:" > AnyKernel3/build-info.txt
+
+          echo "KERNEL_SUFFIX: ${{ inputs.KERNEL_SUFFIX }}" >> AnyKernel3/build-info.txt
+
+          echo "KERNEL_TIME: ${{ inputs.KERNEL_TIME }}" >> AnyKernel3/build-info.txt
+
+          echo "启用KPM: ${{ inputs.enable_feature_x }}" >> AnyKernel3/build-info.txt
+
+          echo "启用lz4kd: ${{ inputs.enable_feature_y }}" >> AnyKernel3/build-info.txt
+
+          
+
+      - name: Upload Artifact
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: Android12-GKI-Kernel
+
+          path: kernel_workspace/kernel_platform/AnyKernel3/*我这样下载的clang太大下载不下来编译不了有什么解决方法Run cd kernel_workspace/kernel_platform
+
+cd kernel_workspace/kernel_platform
+
+# 使用KERNEL_TIME参数
+
+export KBUILD_BUILD_TIMESTAMP="Tue Dec 17 23:36:49 UTC 2024"
+
+
+# 获取Android 12专用Clang工具链
+
+git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+
+export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+
+export PATH=${CLANG_PATH}:${PATH}
+
+
+# 开始构建
+
+make -j$(nproc) ARCH=arm64 CC=clang \
+
+CROSS_COMPILE=aarch64-linux-gnu- \
+
+LD=ld.lld \
+
+NM=llvm-nm
+
+
+shell: /usr/bin/bash -e {0}
+
+Cloning into 'clang-5.10'...
+
+fatal: write error: No space left on device
+
+fatal: fetch-pack: invalid index-pack output
+
+Error: Process completed with exit code 128.
+
+
+
+
+看起来您在使用 GitHub Actions 编译 Android GKI 内核时，遇到了因为 Clang 工具链太大导致下载失败，进而编译无法进行的问题。错误信息 fatal: write error: No space left on device 明确指示了空间不足。
+
+为什么会出现这个问题？
+GitHub Actions 的 ubuntu-latest 运行器通常提供大约 14GB 的可用磁盘空间。然而，随着各种预安装的软件、依赖项以及您项目自身代码的克隆和编译中间文件，这个空间很容易被耗尽。Android 的 Clang 工具链本身就比较大，再加上内核源代码、中间编译产物等，很快就会超出限制。
+
+解决方法
+要解决 "No space left on device" 的问题，核心思路是 在构建开始前尽可能多地清理和释放空间，同时考虑 优化 Clang 工具链的获取方式。
+
+以下是一些可行的策略，您可以根据实际情况选择或组合使用：
+
+1. 在 GitHub Actions 中最大化可用空间
+这是最直接且通常最有效的方法。您可以使用现有的 GitHub Action 来清理不必要的预安装软件和缓存。
+
+操作方法： 在您的 jobs.build.steps 中，在任何实际下载或编译之前，添加一个清理步骤。
+
+YAML
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048 # 保留2GB根分区空间，其余清理
+          temp-reserve-mb: 512 # 保留0.5GB临时空间
+          # 根据需要移除预安装的大型软件
+          remove-dotnet: 'true'
+          remove-android: 'true' # 移除预安装的Android SDK等
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-swap: 'true' # 移除交换分区，释放更多空间
+          remove-tool-cache: 'true' # 清理工具缓存
+          remove-packages: 'true' # 清理apt包缓存
+2. 优化 Clang 工具链的获取方式
+如果仅仅清理空间还不够，可以考虑更换 Clang 工具链的来源或方式。
+
+a. 使用预构建的更轻量级 Clang (推荐)
+Google 官方的 Clang 工具链通常包含调试信息和额外的组件，因此体积较大。一些第三方开发者或社区会提供经过精简的 Clang 工具链，或者更常用的 AOSP Clang 版本。
+
+您可以尝试使用例如 StatiXOS 或 Proton Clang 等社区常用的预构建 Clang 工具链，它们可能体积更小。
+
+操作方法：
+
+在 Build Kernel 步骤中，将原来的 git clone 替换为从其他地方下载预构建的 Clang。
+
+YAML
+
+      - name: Build Kernel
+        run: |
+          cd kernel_workspace/kernel_platform
+          export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
+
+          # ====== 替代方案：下载更轻量级的Clang工具链 ======
+          # 示例：下载Proton Clang (注意版本可能需要更新，请查找最新稳定的版本)
+          # 可以从Proton Clang的GitHub releases页面找到最新的下载链接
+          # 以 r647353b 版本为例 (请替换为实际有效的URL)
+          wget https://github.com/kdrag0n/proton-clang/releases/download/r647353b/proton-clang-r647353b-linux-x86_64.tar.gz
+          tar -xf proton-clang-r647353b-linux-x86_64.tar.gz
+          export CLANG_PATH=$(pwd)/bin # 解压后的bin目录路径可能不同，请根据实际情况调整
+
+          # 如果您已经知道一个可靠的轻量级Clang地址，也可以直接在这里使用
+          # 例如：
+          # curl -LO <某个轻量级Clang的tar.gz下载链接>
+          # tar -xf <下载的tar.gz文件>
+          # export CLANG_PATH=$(pwd)/<解压后Clang的bin目录>
+          # ====================================================
+
+          export PATH=${CLANG_PATH}:${PATH}
+
+          # 开始构建
+          make -j$(nproc) ARCH=arm64 CC=clang \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            LD=ld.lld \
+            NM=llvm-nm
+注意： 您需要找到一个稳定且适合您内核版本的第三方 Clang 工具链的下载链接。通常在 GitHub 上搜索 "Proton Clang releases" 或 "AOSP Clang releases" 可以找到。
+
+b. 使用 repo 稀疏检出 Clang (如果Clang是manifest的一部分)
+如果您的 repo manifest 文件（JiuGeFaCai_oneplus_ace5_pro_v.xml）包含了 Clang 工具链的定义，那么可以使用 repo sync --depth=1 和稀疏检出（sparse checkout）来只下载 Clang 的必要部分。
+
+操作方法：
+
+在 Initialize repo and sync 步骤中，确保 repo 配置文件（JiuGeFaCai_oneplus_ace5_pro_v.xml）定义了 Clang 路径，并且您只同步所需的路径，或者后续手动克隆。不过，您的 YAML 文件中已经有了直接 git clone Clang 的步骤，所以这种方法可能不直接适用，除非您修改 repo 的 manifest 文件来包含 Clang。
+
+3. 其他辅助清理措施
+清理 apt 缓存：在 Install dependencies 步骤后，可以添加一行 sudo apt autoremove -y && sudo apt clean 来清理不再需要的包和下载的包文件。
+
+清理 ccache 缓存：如果您使用了 ccache，确保 CCACHE_MAXSIZE 设置合理，并且在工作流结束时或需要时清理旧的缓存。您当前配置的 8G 缓存可能也占用了一部分空间。
+
+总结建议
+我强烈建议您首先尝试在 jobs.build.steps 的最前面添加 easimon/maximize-build-space@master Action。这个 Action 专门为解决 GitHub Actions 磁盘空间不足的问题而设计，通常非常有效。
+
+如果清理空间后问题依然存在，那么再考虑替换为更轻量级的 Clang 工具链。
+
+希望这些方法能帮助您成功编译内核！
+
+谷歌下载完一个clang要多大空间
+
+
+
+
+顯示思路
+谷歌的 Clang 工具链，尤其是用于 Android 内核或 NDK (Native Development Kit) 的预构建版本，通常会占用相当大的磁盘空间。
+
+根据不同的版本和是否包含完整的调试信息、库文件等，其解压后的体积大致在：
+
+2.5 GB 到 4 GB 或更多：这是一个比较常见的范围。例如，搜索结果显示有些 Clang 工具链解压后会占用约 2.5 GB 的空间。
+
+Android NDK 整体下载包：NDK 包通常包含 Clang 及其它工具链和库，整个压缩包大小可能在 600MB 到 1GB 以上，解压后会更大。例如，Android NDK r27c 的 Linux 64-bit (x86) 版本压缩包大约是 664MB，解压后会占用更多空间。
+
+为什么会这么大？
+Clang 工具链不仅仅是一个编译器可执行文件，它还包括：
+
+编译器驱动 (clang, clang++)
+
+链接器 (ld.lld)
+
+汇编器 (llvm-as)
+
+调试器 (lldb)
+
+各种辅助工具 (llvm-nm, llvm-objdump 等)
+
+大量的头文件和库文件，包括标准库、运行时库以及针对不同架构（如 ARM64）的优化库等。
+
+调试符号和优化信息，这些也会显著增加文件大小。
+
+总结
+所以，您在 GitHub Actions 上下载 Clang 时遇到空间不足的问题是很正常的。一个谷歌的 Clang 工具链解压后很容易就占用 2-4GB 甚至更多的空间，这在 GitHub Actions 默认的 14GB 左右的空间限制下（还需要存放内核源代码、中间编译文件等），确实很容易耗尽。
+
+这也是为什么在之前的建议中，我会推荐您使用 easimon/maximize-build-space 来清理不必要的预装软件，为 Clang 和内核编译腾出更多空间。
+
+name: Android 12 GKI Kernel Builder
+
+on:
+
+workflow_dispatch:
+
+inputs:
+
+KERNEL_SUFFIX:
+
+description: '内核名称修改(可改中文和emoji)'
+
+required: true
+
+default: '-酷安FutabaWa'
+
+KERNEL_TIME:
+
+description: "内核构建日期更改(默认为原厂)"
+
+required: true
+
+default: 'Tue Dec 17 23:36:49 UTC 2024'
+
+enable_feature_x:
+
+description: "是否启用kpm"
+
+required: false
+
+default: false
+
+type: boolean
+
+enable_feature_y:
+
+description: "是否启用lz4kd"
+
+required: false
+
+default: false
+
+type: boolean
+
+
+
+jobs:
+
+build:
+
+runs-on: ubuntu-latest
+
+steps:
+
+- name: Checkout repository
+
+uses: actions/checkout@v4
+
+
+- name: Install dependencies
+
+run: |
+
+sudo apt update && sudo apt upgrade -y
+
+sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc
+
+
+- name: Clone Common Kernel (5.10)
+
+run: |
+
+mkdir kernel_workspace
+
+cd kernel_workspace
+
+git clone https://github.com/tan666000/android_gki_kernel_5.10_common.git -b android12-5.10-2025-06 kernel_platform
+
+cd kernel_platform
+
+git checkout android12-5.10-2025-06
+
+
+- name: Set up SukiSU for 5.10
+
+run: |
+
+cd kernel_workspace/kernel_platform
+
+curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+
+
+- name: Set up susfs for 5.10
+
+run: |
+
+cd kernel_workspace
+
+git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android12-5.10
+
+cd kernel_platform
+
+cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android12-5.10.patch ./
+
+cp ../susfs4ksu/kernel_patches/fs/* ./fs/
+
+cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
+
+patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
+
+
+- name: Apply lz4kd Patches (条件执行)
+
+if: ${{ inputs.enable_feature_y }}
+
+run: |
+
+cd kernel_workspace/kernel_platform
+
+echo "应用lz4kd补丁..."
+
+# 这里添加实际的lz4kd补丁应用命令
+
+
+# 关键修复：首先生成默认配置
+
+- name: Generate initial config
+
+run: |
+
+cd kernel_workspace/kernel_platform
+
+make ARCH=arm64 gki_defconfig
+
+
+- name: Configure Kernel Options
+
+run: |
+
+cd kernel_workspace/kernel_platform
+
+# 使用KERNEL_SUFFIX参数
+
+sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${{ inputs.KERNEL_SUFFIX }}\"/" .config
+
+
+# 使用enable_feature_x参数启用KPM
+
+if [ "${{ inputs.enable_feature_x }}" = "true" ]; then
+
+./scripts/config --enable CONFIG_KPM
+
+echo "已启用KPM功能"
+
+fi
+
+
+# 启用BBR
+
+./scripts/config --enable CONFIG_TCP_CONG_BBR
+
+./scripts/config --set-str CONFIG_DEFAULT_TCP_CONG "bbr"
+
+
+# 应用配置变更
+
+make ARCH=arm64 olddefconfig
+
+
+- name: Build Kernel
+
+run: |
+
+cd kernel_workspace/kernel_platform
+
+# 使用KERNEL_TIME参数
+
+export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
+
+
+# 获取Android 12专用Clang工具链
+
+git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+
+export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+
+export PATH=${CLANG_PATH}:${PATH}
+
+
+# 开始构建
+
+make -j$(nproc) ARCH=arm64 CC=clang \
+
+CROSS_COMPILE=aarch64-linux-gnu- \
+
+LD=ld.lld \
+
+NM=llvm-nm
+
+
+- name: Package Kernel
+
+run: |
+
+cd kernel_workspace/kernel_platform
+
+# 创建AnyKernel3包
+
+git clone https://github.com/Kernel-SU/AnyKernel3.git
+
+cp arch/arm64/boot/Image.gz AnyKernel3/
+
+
+# 添加构建信息文件
+
+echo "构建参数:" > AnyKernel3/build-info.txt
+
+echo "KERNEL_SUFFIX: ${{ inputs.KERNEL_SUFFIX }}" >> AnyKernel3/build-info.txt
+
+echo "KERNEL_TIME: ${{ inputs.KERNEL_TIME }}" >> AnyKernel3/build-info.txt
+
+echo "启用KPM: ${{ inputs.enable_feature_x }}" >> AnyKernel3/build-info.txt
+
+echo "启用lz4kd: ${{ inputs.enable_feature_y }}" >> AnyKernel3/build-info.txt
+
+
+- name: Upload Artifact
+
+uses: actions/upload-artifact@v4
+
+with:
+
+name: Android12-GKI-Kernel
+
+path: kernel_workspace/kernel_platform/AnyKernel3/*给我改一下
+
+
+
+
+看来您正在尝试优化您的 GitHub Actions 工作流，以解决 Clang 工具链过大导致空间不足的问题。您提供的错误信息 "fatal: write error: No space left on device" 确实是常见的磁盘空间不足提示。
+
+问题分析
+您的核心问题是：在 GitHub Actions 的 ubuntu-latest 运行器上，下载 Android 12 专用的 Clang 工具链（通过 git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10 命令）时，占用的空间太大，导致整个工作流因磁盘空间耗尽而失败。
+
+谷歌官方的 Clang 工具链通常包含大量调试信息和不同架构的库，解压后很容易达到 2-4GB 甚至更多，这对于 GitHub Actions 提供的约 14GB 初始空间来说，加上内核源码、编译中间文件等，确实很容易捉襟见肘。
+
+解决方案与修改建议
+要解决这个问题，我们将采取以下策略：
+
+最大化可用磁盘空间：使用 easimon/maximize-build-space Action 清理预安装的、不必要的软件和缓存。这是最直接有效的方法。
+
+（可选）使用更轻量级的 Clang 工具链：如果清理空间后仍不足，或希望更快下载，可以考虑使用社区维护的、体积更小的 Clang 版本。但需要注意版本兼容性。
+
+优化现有 Clang 下载方式：确保 Clang 下载步骤在其他大型操作之前执行，并在成功后及时清理不必要的缓存。
+
+修改后的 YAML 配置
+以下是修改后的 YAML 文件，主要在 jobs.build.steps 的开头添加了磁盘空间清理步骤：
+
+YAML
+
+name: Android 12 GKI Kernel Builder
+on:
+  workflow_dispatch:
+    inputs:
+      KERNEL_SUFFIX:
+        description: '内核名称修改(可改中文和emoji)'
+        required: true
+        default: '-酷安FutabaWa'
+      KERNEL_TIME:
+        description: "内核构建日期更改(默认为原厂)"
+        required: true
+        default: 'Tue Dec 17 23:36:49 UTC 2024'
+      enable_feature_x:
+        description: "是否启用kpm"
+        required: false
+        default: false
+        type: boolean
+      enable_feature_y:
+        description: "是否启用lz4kd"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # --- 新增步骤：最大化构建空间 ---
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          # 保留2GB根分区空间，其余清理。根据实际情况可以调整
+          root-reserve-mb: 2048
+          # 保留0.5GB临时空间
+          temp-reserve-mb: 512
+          # 移除大部分不需要的预安装软件包，这通常能释放大量空间
+          remove-dotnet: 'true'
+          remove-android: 'true' # GitHub Actions 默认安装的 Android SDK 很大，可以移除
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-swap: 'true' # 移除交换分区，进一步释放空间
+          remove-tool-cache: 'true' # 清理工具缓存
+          remove-packages: 'true' # 清理 apt 包缓存
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt upgrade -y
+          # ccache 可以加速重复构建，但其缓存本身也占空间，这里暂时保留
+          sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc
+          # 清理 apt 缓存，因为之前 apt update/upgrade 可能会下载大量包
+          sudo apt autoremove -y && sudo apt clean
+          
+      - name: Clone Common Kernel (5.10)
+        run: |
+          mkdir kernel_workspace
+          cd kernel_workspace
+          git clone https://github.com/tan666000/android_gki_kernel_5.10_common.git -b android12-5.10-2025-06 kernel_platform
+          cd kernel_platform
+          git checkout android12-5.10-2025-06
+          
+      - name: Set up SukiSU for 5.10
+        run: |
+          cd kernel_workspace/kernel_platform
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+          
+      - name: Set up susfs for 5.10
+        run: |
+          cd kernel_workspace
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android12-5.10
+          cd kernel_platform
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android12-5.10.patch ./
+          cp ../susfs4ksu/kernel_patches/fs/* ./fs/
+          cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
+          patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
+          
+      - name: Apply lz4kd Patches (条件执行)
+        if: ${{ inputs.enable_feature_y }}
+        run: |
+          cd kernel_workspace/kernel_platform
+          echo "应用lz4kd补丁..."
+          # 这里添加实际的lz4kd补丁应用命令，例如 cp 相关文件或 patch
+          # 示例：
+          # cp ../path/to/lz4kd_patch.patch ./
+          # patch -p1 < lz4kd_patch.patch || true
+          
+      - name: Generate initial config
+        run: |
+          cd kernel_workspace/kernel_platform
+          make ARCH=arm64 gki_defconfig
+          
+      - name: Configure Kernel Options
+        run: |
+          cd kernel_workspace/kernel_platform
+          # 使用KERNEL_SUFFIX参数
+          sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${{ inputs.KERNEL_SUFFIX }}\"/" .config
+          
+          # 使用enable_feature_x参数启用KPM
+          if [ "${{ inputs.enable_feature_x }}" = "true" ]; then
+            ./scripts/config --enable CONFIG_KPM
+            echo "已启用KPM功能"
+          fi
+          
+          # 启用BBR
+          ./scripts/config --enable CONFIG_TCP_CONG_BBR
+          ./scripts/config --set-str CONFIG_DEFAULT_TCP_CONG "bbr"
+          
+          # 应用配置变更
+          make ARCH=arm64 olddefconfig
+          
+      - name: Build Kernel
+        run: |
+          cd kernel_workspace/kernel_platform
+          # 使用KERNEL_TIME参数
+          export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
+          
+          # 获取Android 12专用Clang工具链
+          # 这一步是导致空间不足的元凶，但必须执行
+          git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android12-release clang-5.10
+          export CLANG_PATH=$(pwd)/clang-5.10/clang-r450784d/bin
+          export PATH=${CLANG_PATH}:${PATH}
+          
+          # 开始构建
+          make -j$(nproc) ARCH=arm64 CC=clang \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            LD=ld.lld \
+            NM=llvm-nm
+            
+      - name: Package Kernel
+        run: |
+          cd kernel_workspace/kernel_platform
+          # 创建AnyKernel3包
+          git clone https://github.com/Kernel-SU/AnyKernel3.git
+          cp arch/arm64/boot/Image.gz AnyKernel3/
+          
+          # 添加构建信息文件
+          echo "构建参数:" > AnyKernel3/build-info.txt
+          echo "KERNEL_SUFFIX: ${{ inputs.KERNEL_SUFFIX }}" >> AnyKernel3/build-info.txt
+          echo "KERNEL_TIME: ${{ inputs.KERNEL_TIME }}" >> AnyKernel3/build-info.txt
+          echo "启用KPM: ${{ inputs.enable_feature_x }}" >> AnyKernel3/build-info.txt
+          echo "启用lz4kd: ${{ inputs.enable_feature_y }}" >> AnyKernel3/build-info.txt
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android12-GKI-Kernel
+          path: kernel_workspace/kernel_platform/AnyKernel3/*
+改进说明
+添加 Maximize build space Action：
+
+这是最关键的改动。easimon/maximize-build-space@master 会在您的构建开始前，清理掉 GitHub Actions 运行器中大量预安装的、您不需要的软件（如 .NET SDK、Android SDK、Haskell 等），以及一些系统缓存和交换分区。这能显著增加可用磁盘空间，为 Clang 工具链的下载和内核编译提供充足的空间。
+
+root-reserve-mb 和 temp-reserve-mb 参数用于保留一些基础空间，以防清理过度导致系统不稳定。
+
+优化 Install dependencies 步骤：
+
+在安装完依赖后，增加了 sudo apt autoremove -y && sudo apt clean，这会移除不再需要的依赖包和清理 APT 缓存，进一步释放空间。
+
+（潜在优化）Clang 工具链选择：
+
+目前仍保留了您原有的 git clone 谷歌官方 Clang 的方式。如果添加了 Maximize build space 后仍偶尔出现空间不足，您可以考虑将 Clang 的下载源替换为更轻量级的预构建版本（例如社区维护的 Proton Clang 等）。但这需要您自行查找并验证其兼容性。
+
+如果需要，可以在 Build Kernel 步骤前，尝试添加 rm -rf clang-5.10 来确保每次都重新下载，避免因历史残余文件造成的空间问题。
+
+通过这些改动，您的 GitHub Actions 工作流应该能更稳定地完成 Android GKI 内核的编译任务。
+
+您还有其他想调整或了解的部分吗？
+
+太慢了，给我换成这个https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz下载解压用这个clang
+
+
+
+
+好的，了解您觉得下载速度太慢。我已根据您的要求，将 Clang 工具链的下载方式改为直接从您提供的 tar.gz 链接下载并解压。
+
+这种方式通常会比 git clone 更快，因为它直接下载一个压缩包，而不是克隆整个 Git 仓库历史。
+
+修改后的 YAML 配置
+主要改动在 Build Kernel 步骤中。我将原来的 git clone 替换为 wget 命令来下载您指定的新链接，然后使用 tar -xf 进行解压。同时，我也更新了 CLANG_PATH 的设置，以匹配新解压后的目录结构。
+
+请注意，clang-r547379.tar.gz 解压后，其 bin 目录可能位于 clang-r547379/bin 或其他类似路径下。我已根据常见的解压结果进行了调整，如果首次运行出错，您可能需要根据实际解压后的目录结构微调 CLANG_PATH。
+
+YAML
+
+name: Android 12 GKI Kernel Builder
+on:
+  workflow_dispatch:
+    inputs:
+      KERNEL_SUFFIX:
+        description: '内核名称修改(可改中文和emoji)'
+        required: true
+        default: '-酷安FutabaWa'
+      KERNEL_TIME:
+        description: "内核构建日期更改(默认为原厂)"
+        required: true
+        default: 'Tue Dec 17 23:36:49 UTC 2024'
+      enable_feature_x:
+        description: "是否启用kpm"
+        required: false
+        default: false
+        type: boolean
+      enable_feature_y:
+        description: "是否启用lz4kd"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # --- 最大化构建空间：建议保留此步骤以防空间不足 ---
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          temp-reserve-mb: 512
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-swap: 'true'
+          remove-tool-cache: 'true'
+          remove-packages: 'true'
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt upgrade -y
+          sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc wget tar # 确保安装了 wget 和 tar
+          sudo apt autoremove -y && sudo apt clean
+          
+      - name: Clone Common Kernel (5.10)
+        run: |
+          mkdir kernel_workspace
+          cd kernel_workspace
+          git clone https://github.com/tan666000/android_gki_kernel_5.10_common.git -b android12-5.10-2025-06 kernel_platform
+          cd kernel_platform
+          git checkout android12-5.10-2025-06
+          
+      - name: Set up SukiSU for 5.10
+        run: |
+          cd kernel_workspace/kernel_platform
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+          
+      - name: Set up susfs for 5.10
+        run: |
+          cd kernel_workspace
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android12-5.10
+          cd kernel_platform
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android12-5.10.patch ./
+          cp ../susfs4ksu/kernel_patches/fs/* ./fs/
+          cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
+          patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
+          
+      - name: Apply lz4kd Patches (条件执行)
+        if: ${{ inputs.enable_feature_y }}
+        run: |
+          cd kernel_workspace/kernel_platform
+          echo "应用lz4kd补丁..."
+          # 这里添加实际的lz4kd补丁应用命令
+          
+      - name: Generate initial config
+        run: |
+          cd kernel_workspace/kernel_platform
+          make ARCH=arm64 gki_defconfig
+          
+      - name: Configure Kernel Options
+        run: |
+          cd kernel_workspace/kernel_platform
+          sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${{ inputs.KERNEL_SUFFIX }}\"/" .config
+          
+          if [ "${{ inputs.enable_feature_x }}" = "true" ]; then
+            ./scripts/config --enable CONFIG_KPM
+            echo "已启用KPM功能"
+          fi
+          
+          ./scripts/config --enable CONFIG_TCP_CONG_BBR
+          ./scripts/config --set-str CONFIG_DEFAULT_TCP_CONG "bbr"
+          
+          make ARCH=arm64 olddefconfig
+          
       - name: Build Kernel
         run: |
           cd kernel_workspace/kernel_platform
@@ -114,6 +2120,370 @@ jobs:
           export PATH=${CLANG_PATH}:${PATH}
           echo "Clang 工具链路径已设置为: ${CLANG_PATH}"
           # --- 修改结束 ---
+          
+          # 开始构建
+          make -j$(nproc) ARCH=arm64 CC=clang \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            LD=ld.lld \
+            NM=llvm-nm
+            
+      - name: Package Kernel
+        run: |
+          cd kernel_workspace/kernel_platform
+          git clone https://github.com/Kernel-SU/AnyKernel3.git
+          cp arch/arm64/boot/Image.gz AnyKernel3/
+          
+          echo "构建参数:" > AnyKernel3/build-info.txt
+          echo "KERNEL_SUFFIX: ${{ inputs.KERNEL_SUFFIX }}" >> AnyKernel3/build-info.txt
+          echo "KERNEL_TIME: ${{ inputs.KERNEL_TIME }}" >> AnyKernel3/build-info.txt
+          echo "启用KPM: ${{ inputs.enable_feature_x }}" >> AnyKernel3/build-info.txt
+          echo "启用lz4kd: ${{ inputs.enable_feature_y }}" >> AnyKernel3/build-info.txt
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android12-GKI-Kernel
+          path: kernel_workspace/kernel_platform/AnyKernel3/*
+重要提示
+验证解压路径：tar -xf clang-r547379.tar.gz 解压后，Clang 的可执行文件（clang, ld.lld 等）应该位于一个 bin 子目录中。我假设解压后的顶级目录是 clang-r547379，所以 export CLANG_PATH=$(pwd)/clang-r547379/bin。如果运行后仍然找不到 Clang，请检查 GitHub Actions 日志中 Build Kernel 步骤里 tar -xf 命令的输出，确认实际的解压目录名，然后相应地修改 CLANG_PATH。
+
+wget 和 tar 工具：我已在 Install dependencies 步骤中添加了 wget 和 tar，确保这些工具可用。
+
+网络速度：虽然 tar.gz 包下载通常比 git clone 快，但最终速度仍取决于 GitHub Actions 运行器到谷歌服务器的网络状况。
+
+希望这次的改动能显著提高下载速度并解决空间问题！
+
+Updating files: 100% (16578/16578)
+
+143
+
+Updating files: 100% (16578/16578), done.
+
+144
+
+arch/arm64/Makefile:25: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
+
+145
+
+arch/arm64/Makefile:33: LSE atomics not supported by binutils
+
+146
+
+arch/arm64/Makefile:44: Detected assembler with broken .inst; disassembly will be unreliable
+
+147
+
+SYNC include/config/auto.conf.cmd
+
+148
+
+scripts/Kconfig.include:40: linker 'ld.lld' not found
+
+149
+
+make[2]: *** [scripts/kconfig/Makefile:71: syncconfig] Error 1
+
+150
+
+make[1]: *** [Makefile:633: syncconfig] Error 2
+
+151
+
+make: *** [Makefile:753: include/config/auto.conf.cmd] Error 2
+
+152
+
+make: *** [include/config/auto.conf.cmd] Deleting file 'include/generated/autoconf.h'
+
+153
+
+Error: Process completed with exit code 2.
+
+
+
+
+
+Package Kernel
+
+0s
+
+
+
+
+
+Upload Artifact
+
+0s
+
+
+
+
+
+Post Checkout repository
+
+0s
+
+
+
+
+
+Complete job
+
+0s
+
+
+
+Android 12 GKI Kernel Builder · tan666000/oneplus13_a5p_sukisu@125ee34 
+
+上次出现这个错误是什么意思
+
+
+
+
+Given the current time, let's analyze the error message.
+
+您提供的错误日志显示在编译 Android 12 GKI 内核时，make 命令失败了。最关键的错误信息是：
+
+scripts/Kconfig.include:40: linker 'ld.lld' not found
+make[2]: *** [scripts/kconfig/Makefile:71: syncconfig] Error 1
+make[1]: *** [Makefile:633: syncconfig] Error 2
+make: *** [Makefile:753: include/config/auto.conf.cmd] Error 2
+这明确指出 链接器 ld.lld 未找到。
+
+详细解释：
+Updating files: 100% (16578/16578): 这表示文件更新或克隆部分成功完成了。这本身不是错误。
+
+arch/arm64/Makefile:25: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
+
+这是一条警告。它表明您的链接器（尽管后面说没找到，但这里指的是预期中的链接器）不支持某个针对 Cortex-A53 处理器错误的修复选项。这意味着编译出的内核可能仍然受该硬件错误的影响。
+
+这不是导致编译失败的直接原因，但它是一条重要的提示。
+
+arch/arm64/Makefile:33: LSE atomics not supported by binutils
+
+这也是一条警告。它表示您的 binutils 工具链不支持 "Large System Extensions (LSE) atomics" 特性。LSE 是 ARMv8.1-A 架构引入的原子操作增强。
+
+同样，这不是导致编译失败的直接原因。
+
+arch/arm64/Makefile:44: Detected assembler with broken .inst; disassembly will be unreliable
+
+这也是一条警告。它指出汇编器存在一个问题，可能导致反汇编结果不可靠。
+
+不是导致编译失败的直接原因。
+
+scripts/Kconfig.include:40: linker 'ld.lld' not found
+
+这是导致您编译失败的根本原因。 ld.lld 是 LLVM 项目中的链接器，通常与 Clang 编译器配套使用。这个错误表示系统在 $PATH 环境变量中找不到 ld.lld 这个可执行文件。
+
+内核的构建系统在执行 syncconfig 阶段（这个阶段会根据 Kconfig 文件生成配置头文件）时，需要用到链接器来处理一些工具链相关的检查，但它找不到 ld.lld，所以就报错了。
+
+make[2]: *** [scripts/kconfig/Makefile:71: syncconfig] Error 1
+make[1]: *** [Makefile:633: syncconfig] Error 2
+make: *** [Makefile:753: include/config/auto.conf.cmd] Error 2
+
+这些是 make 工具的级联错误，表示在执行 syncconfig 目标时，由于找不到 ld.lld 而导致命令失败，进而使整个 make 进程终止。
+
+make: *** [include/config/auto.conf.cmd] Deleting file 'include/generated/autoconf.h'：这是 make 在检测到错误后，清理掉部分未完成或错误生成的文件。
+
+解决方法：
+这个错误的核心在于 ld.lld 链接器没有正确地添加到 $PATH 环境变量中，或者 Clang 工具链本身就没有包含 ld.lld，又或者是下载、解压过程出了问题。
+
+根据您上次修改的 YAML 文件，我们改变了 Clang 的下载方式：
+
+YAML
+
+          # --- 关键修改：改为下载 tar.gz 包并解压 ---
+          echo "正在下载 Clang 工具链..."
+          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O clang-r547379.tar.gz
+          echo "正在解压 Clang 工具链..."
+          tar -xf clang-r547379.tar.gz
+          # 根据解压后的实际目录结构设置 CLANG_PATH
+          # 假设解压后会在当前目录生成一个名为 'clang-r547379' 的文件夹
+          export CLANG_PATH=$(pwd)/clang-r547379/bin 
+          export PATH=${CLANG_PATH}:${PATH}
+          echo "Clang 工具链路径已设置为: ${CLANG_PATH}"
+          # --- 修改结束 ---
+请检查以下几点：
+
+确认 wget 和 tar 是否成功执行：查看 GitHub Actions 的日志，在 Build Kernel 步骤中，检查 正在下载 Clang 工具链... 和 正在解压 Clang 工具链... 命令后面是否有报错。如果有下载失败或解压失败，那 ld.lld 自然不会出现在预期位置。
+
+clang-r547379.tar.gz 解压后的实际目录结构：
+
+这是最可能的问题所在。 您需要确认 tar -xf clang-r547379.tar.gz 解压后，是否真的在当前目录下创建了一个名为 clang-r547379 的文件夹，并且 ld.lld 位于 clang-r547379/bin 内部。
+
+调试方法：
+在 Build Kernel 步骤的 export PATH=${CLANG_PATH}:${PATH} 后面，可以临时添加调试命令：
+
+Bash
+
+ls -F $(pwd) # 查看当前目录解压出了什么
+ls -F ${CLANG_PATH} # 查看 CLANG_PATH 下有什么文件
+which ld.lld # 确认 ld.lld 是否能被找到
+运行工作流，然后查看日志，您就能知道 clang-r547379.tar.gz 到底解压到了哪里，以及 ld.lld 是否存在。
+
+压缩包内容完整性：理论上，谷歌提供的这个 tar.gz 包应该包含 ld.lld，因为它是一个完整的 Clang 工具链。如果解压后确实没有 ld.lld，那可能是压缩包本身有问题，或者您下载的不是完整的工具链。
+
+根据您的情况，ld.lld 未找到最可能是因为 export CLANG_PATH=$(pwd)/clang-r547379/bin 这行代码设置的路径不正确，与实际解压后的目录结构不符。请务必检查日志中解压后的文件结构。
+
+
+2025-06-25 07:21:55 (4.51 MB/s) - ‘clang-r547379.tar.gz’ saved [1145059423]
+
+22399
+
+
+
+22400
+
+正在解压 Clang 工具链...
+
+22401
+
+Clang 工具链路径已设置为: /home/runner/work/oneplus13_a5p_sukisu/oneplus13_a5p_sukisu/kernel_workspace/kernel_platform/clang-r547379/bin
+
+22402
+
+arch/arm64/Makefile:25: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
+
+22403
+
+arch/arm64/Makefile:33: LSE atomics not supported by binutils
+
+22404
+
+arch/arm64/Makefile:44: Detected assembler with broken .inst; disassembly will be unreliable
+
+22405
+
+SYNC include/config/auto.conf.cmd
+
+22406
+
+scripts/Kconfig.include:40: linker 'ld.lld' not found
+
+22407
+
+make[2]: *** [scripts/kconfig/Makefile:71: syncconfig] Error 1
+
+22408
+
+make[1]: *** [Makefile:633: syncconfig] Error 2
+
+22409
+
+make: *** [Makefile:753: include/config/auto.conf.cmd] Error 2
+
+22410
+
+make: *** [include/config/auto.conf.cmd] Deleting file 'include/generated/autoconf.h'
+
+22411
+
+Error: Process completed with exit code 2.
+
+
+
+
+
+Package Kernel
+
+0s
+
+
+
+
+
+Upload Artifact
+
+0s
+
+
+
+
+
+Post Checkout repository
+
+0s
+
+
+
+
+
+Complete job
+
+0s
+
+
+
+
+您提供了最新的日志片段，显示下载和解压 Clang 工具链的步骤似乎都成功了，但仍然报告 linker 'ld.lld' not found 错误。
+
+日志分析：
+2025-06-25 07:21:55 (4.51 MB/s) - ‘clang-r547379.tar.gz’ saved [1145059423]
+
+这一行表明 wget 命令成功下载了 clang-r547379.tar.gz 文件，大小约为 1.1 GB，下载速度 4.51 MB/s。
+
+结论：下载成功。
+
+正在解压 Clang 工具链...
+
+这只是一个打印信息，表明 tar -xf 命令正在执行。
+
+Clang 工具链路径已设置为: /home/runner/work/oneplus13_a5p_sukisu/oneplus13_a5p_sukisu/kernel_workspace/kernel_platform/clang-r547379/bin
+
+这行打印表明 CLANG_PATH 环境变量被设置到了这个路径。
+
+结论：环境变量设置看起来是正确的，指向了 clang-r547379/bin。
+
+arch/arm64/Makefile:25: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
+arch/arm64/Makefile:33: LSE atomics not supported by binutils
+arch/arm64/Makefile:44: Detected assembler with broken .inst; disassembly will be unreliable
+
+这些都是警告，与上一次相同，不直接导致编译失败。
+
+scripts/Kconfig.include:40: linker 'ld.lld' not found
+
+核心错误，与上次相同。 尽管 CLANG_PATH 看起来设置了，但 make 依然找不到 ld.lld。
+
+诊断原因与解决方案：
+既然下载和 CLANG_PATH 设置都表面上成功了，那么最可能的原因是：
+
+1. clang-r547379.tar.gz 解压后的实际目录结构不符合预期。
+
+这意味着虽然您 export CLANG_PATH=$(pwd)/clang-r547379/bin，但 ld.lld 并没有实际位于那个路径下。
+
+调试步骤：
+
+您需要在 Build Kernel 步骤中，在 export PATH=${CLANG_PATH}:${PATH} 之后，添加一些命令来探查实际的文件系统结构，以便验证 ld.lld 的实际位置。
+
+请将 Build Kernel 步骤修改为：
+
+YAML
+
+      - name: Build Kernel
+        run: |
+          cd kernel_workspace/kernel_platform
+          export KBUILD_BUILD_TIMESTAMP="${{ inputs.KERNEL_TIME }}"
+          
+          echo "正在下载 Clang 工具链..."
+          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O clang-r547379.tar.gz
+          echo "正在解压 Clang 工具链..."
+          tar -xf clang-r547379.tar.gz
+          
+          # --- 调试代码开始 ---
+          echo "======== 调试信息: Clang 解压目录内容 ========"
+          ls -R $(pwd) # 递归列出当前目录所有文件和子目录，确认 clang-r547379 内部结构
+          echo "======== 调试信息: 检查 CLANG_PATH 内容 ========"
+          ls -F $(pwd)/clang-r547379/bin # 列出预期 bin 目录的内容
+          echo "======== 调试信息: 尝试查找 ld.lld ========"
+          find $(pwd) -name "ld.lld" # 在当前工作目录下查找 ld.lld
+          echo "======== 调试信息: 检查 PATH 变量 ========"
+          echo $PATH
+          echo "======== 调试信息结束 ========"
+          # --- 调试代码结束 ---
+
+          export CLANG_PATH=$(pwd)/clang-r547379/bin 
+          export PATH=${CLANG_PATH}:${PATH}
+          echo "Clang 工具链路径已设置为: ${CLANG_PATH}"
           
           # 开始构建
           make -j$(nproc) ARCH=arm64 CC=clang \
