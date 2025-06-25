@@ -53,7 +53,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          sudo apt install -y python3 git curl ccache
+          # 在这里添加了 lld 包的安装
+          sudo apt install -y python3 git curl ccache lld
 
       - name: Restore ccache
         uses: actions/cache@v3
@@ -70,10 +71,8 @@ jobs:
           ref: android12-5.10-2025-06
           path: kernel_src # 将仓库签出到 kernel_src 目录
 
-      # 新增步骤：签出 Clang 工具链
       - name: Checkout Clang Toolchain
         run: |
-          # 克隆 crDroid 的 Clang 预编译工具链到 clang_toolchain 文件夹
           git clone https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r547379.git clang_toolchain
 
       - name: Set up SukiSU
