@@ -20,23 +20,19 @@ on:
         required: false
         default: false
         type: boolean
-      enable_feature_z:
-        description: "是否添加风驰驱动"
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 步骤1-4: 环境准备和依赖安装 (与之前相同)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
           sudo apt install -y python3 git curl ccache build-essential flex bison libssl-dev libelf-dev bc
           
-      # --- 核心修改从这里开始 ---
       - name: Clone Common Kernel (5.10)
         run: |
           mkdir kernel_workspace
@@ -60,13 +56,18 @@ jobs:
           cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
           patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
           
-      # --- 输入参数使用示例 ---
       - name: Apply lz4kd Patches (条件执行)
-        if: ${{ inputs.enable_feature_y }}  # 使用enable_feature_y参数
+        if: ${{ inputs.enable_feature_y }}
         run: |
           cd kernel_workspace/kernel_platform
           echo "应用lz4kd补丁..."
           # 这里添加实际的lz4kd补丁应用命令
+          
+      # 关键修复：首先生成默认配置
+      - name: Generate initial config
+        run: |
+          cd kernel_workspace/kernel_platform
+          make ARCH=arm64 gki_defconfig
           
       - name: Configure Kernel Options
         run: |
@@ -78,12 +79,6 @@ jobs:
           if [ "${{ inputs.enable_feature_x }}" = "true" ]; then
             ./scripts/config --enable CONFIG_KPM
             echo "已启用KPM功能"
-          fi
-          
-          # 使用enable_feature_z参数添加风驰驱动
-          if [ "${{ inputs.enable_feature_z }}" = "true" ]; then
-            echo "添加风驰驱动..."
-            # 这里添加风驰驱动的安装命令
           fi
           
           # 启用BBR
@@ -123,7 +118,6 @@ jobs:
           echo "KERNEL_TIME: ${{ inputs.KERNEL_TIME }}" >> AnyKernel3/build-info.txt
           echo "启用KPM: ${{ inputs.enable_feature_x }}" >> AnyKernel3/build-info.txt
           echo "启用lz4kd: ${{ inputs.enable_feature_y }}" >> AnyKernel3/build-info.txt
-          echo "启用风驰驱动: ${{ inputs.enable_feature_z }}" >> AnyKernel3/build-info.txt
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
