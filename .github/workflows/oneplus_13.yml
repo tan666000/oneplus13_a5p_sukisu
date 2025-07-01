@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          sudo apt install -y python3 git curl ccache lld libelf-dev binutils-aarch64-linux-gnu
+          sudo apt install -y python3 git curl ccache lld libelf-dev binutils-aarch664-linux-gnu
 
       - name: Restore ccache
         uses: actions/cache@v3
@@ -71,9 +71,9 @@ jobs:
           mkdir clang_toolchain_new
           cd clang_toolchain_new
           echo "正在下载 Google 官方 Clang 工具链..."
-          curl -L -o clang-r547379.tar.gz "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz"
+          curl -L -o clang-a6fc52435e9bbca3b0d9a13ee8ae28377ec87bba.tar.gz "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/a6fc52435e9bbca3b0d9a13ee8ae28377ec87bba.tar.gz"
           echo "正在解压..."
-          tar -xf clang-r547379.tar.gz
+          tar -xf clang-a6fc52435e9bbca3b0d9a13ee8ae28377ec87bba.tar.gz
 
       - name: Set up SukiSU
         run: |
@@ -170,7 +170,7 @@ jobs:
       - name: Build Kernel
         run: |
           export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
-          export PATH="$GITHUB_WORKSPACE/clang_toolchain_new/clang-r547379/bin:$PATH"
+          export PATH="$GITHUB_WORKSPACE/clang_toolchain_new/clang-a6fc52435e9bbca3b0d9a13ee8ae28377ec87bba/bin:$PATH"
           export PATH="/usr/lib/ccache:$PATH"
           cd kernel_src
           make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
