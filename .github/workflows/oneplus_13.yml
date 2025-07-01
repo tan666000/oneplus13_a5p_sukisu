@@ -66,9 +66,14 @@ jobs:
           ref: android12-5.10-2025-06
           path: kernel_src # 将仓库签出到 kernel_src 目录
 
-      - name: Checkout Clang Toolchain
+      - name: 下载并解压 Google 官方 Clang 工具链
         run: |
-          git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r547379.git clang_toolchain_new
+          mkdir clang_toolchain_new
+          cd clang_toolchain_new
+          echo "正在下载 Google 官方 Clang 工具链..."
+          curl -L -o clang-r547379.tar.gz "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz"
+          echo "正在解压..."
+          tar -xf clang-r547379.tar.gz
 
       - name: Set up SukiSU
         run: |
@@ -114,7 +119,7 @@ jobs:
         run: |
           cd kernel_src
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/gki_defconfig
-
+          
           # Add VFS configuration settings
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/gki_defconfig
@@ -151,7 +156,7 @@ jobs:
         run: |
           cd kernel_src
           echo "CONFIG_KPM=y" >> ./arch/arm64/configs/gki_defconfig
-
+          
           #Remove check_defconfig
           sudo sed -i 's/check_defconfig//' ./build.config.gki
           git add -A && git commit -a -m "BUILD Kernel"
